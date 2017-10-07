@@ -1,4 +1,4 @@
-//coded by Simhadri
+//coded by Simha
 int i=0; 
 int a =13;
 int b =12;
