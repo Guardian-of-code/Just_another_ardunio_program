@@ -12,7 +12,9 @@ from sensor_msgs.msg import Range
 
 d = {'L' : 'R','R' : 'L'}   # dictionary so that for min_turn it turns in opposite direction
 global cur_range  # making this global so any update anyware gets immediately reflected 
-
+global time_array
+global d_array
+count = 0 
 
 class MasterNode(object):
     def __init__(self):
@@ -41,20 +43,26 @@ class MasterNode(object):
         global time_array
         time_array = []
         motor_cmd = "F"
-        if cur_range < self.min_distance:  # 1ST major turn # make this run only once
+        
+        if cur_range < self.min_distance and count == 0:  # 1ST major turn # make this run only once***
             motor_cmd = "R"
-            array.append("R")
+            d_array.append("R")
+            global count
+            count = 1
             self.publish_cmd(motor_cmd)  # publish
+            self.check_range_2(motor_cmd)
             # motor_cmd = "F"                             #not needed i guess
             # self.motor_pub.publish()
             # rospy.loginfo("Bot is moving - {0}".format(motor_cmd))
-        else:
+        elif count == 0 :
             motor_cmd = "F"
             self.publish_cmd(motor_cmd)
-
-        if(motor_cmd == "R"):
+        if(motor_cmd == "R" or motor_cmd == 'L'):  # will be left in T
+            self.check_range_2(motor_cmd)
+        
+        
+    def check_range_2(self, motor_cmd):
             self.start_time_count = time.time()
-
             motor_cmd = self.min_turn()    # call min_turn
             self.publish_cmd(motor_cmd)  # publish
 
@@ -84,7 +92,7 @@ class MasterNode(object):
         if(cur_range <= self.min_distance ):
             return "R"             # revert back cause min distance> cur_range dictonary of opp
         else:
-            d_array.append(motor_cmd)  # add todirection array  
+            d_array.append(motor_cmd)  # add todirection array
             return "F"                     # no obstacal move forward
             
         
@@ -94,10 +102,10 @@ class MasterNode(object):
 def main(args):
     rospy.init_node('master_node', anonymous=False)
     mn = MasterNode()
-    try: 
+    try:
         rospy.spin()
     except (KeyboardInterrupt, rospy.ROSInterruptException) as e:
-        print("Shutting down for {0}".format(e))    
+        print("Shutting down for {0}".format(e))
     rospy.on_shutdown(mn.halt_bot())
 
 
