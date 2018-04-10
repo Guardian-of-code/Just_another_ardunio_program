@@ -13,7 +13,7 @@ from sensor_msgs.msg import Range
 
 
 class MasterNode(object):
-    count = 0 
+
     def __init__(self):
         self.motor_pub = rospy.Publisher("motor_cmd", String, queue_size=5)
         self.ping_sub = rospy.Subscriber("ping_sensor", Range, self.callback) #continously calls cllback when data is recived
@@ -23,6 +23,7 @@ class MasterNode(object):
         self.min_distance = 5
         self.start_time_count = 0
         self.aligndistance = 0
+        self.count = 0
         print("Initiated Node")
 
     def callback(self, data):
