@@ -28,20 +28,19 @@ class MasterNode(object):
 
         if self.temp_cmd == "L":
             motor_cmd = self.check1(distance)
-            self.temp_cmd == "F"
-            
+            self.start_time = time.time()
+            self.temp_cmd = "Random"
 
         elif distance < self.min_distance:
             self.start_time = time.time()
-         
             motor_cmd = "R"
-            
-            # determine how long to turn 90deg
-            
-            
+            self.d_array.append(motor_cmd)
+
+            # determine how long to turn 90deg                        
         else:
             motor_cmd = "F"
-            if(time.time()-self.start_time>self.max_time() and self.start_time!=0):
+            t = time.time()-self.start_time
+            if(t >self.max_time() and self.start_time!=0):
                 motor_cmd ="L"
                 self.temp_cmd = motor_cmd
                
@@ -61,7 +60,7 @@ class MasterNode(object):
         if(distance <= self.min_distance ):
             return "R"             # revert back cause min distance> cur_range dictonary of opp
         else:
-            self.d_array.append(motor_cmd)  # add todirection array
+            self.d_array.append("L")  # add todirection array
             return "F"  
         
         
@@ -78,3 +77,4 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
+
