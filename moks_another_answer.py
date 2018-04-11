@@ -11,9 +11,10 @@ class MasterNode(object):
         self.ping_sub = rospy.Subscriber("ping_sensor", Range, self.callback)
         self.min_distance = 5
         self.start_time = 0
-        self.first_turn = 0
         self.max_time = 6
         self.d_array = []
+        self.time_counter=0
+        self.time_array=[0,0,0]
         self.temp_cmd = "Random"
         print("Initiated Node")
 
@@ -28,7 +29,9 @@ class MasterNode(object):
 
         if self.temp_cmd == "L":
             motor_cmd = self.check1(distance)
-            self.start_time = time.time()
+            if motor_cmd=="R":
+                self.time_counter+=6
+                self.start_time = time.time()
             self.temp_cmd = "Random"
 
         elif distance < self.min_distance:
@@ -40,10 +43,18 @@ class MasterNode(object):
         else:
             motor_cmd = "F"
             t = time.time()-self.start_time
-            if(t >self.max_time() and self.start_time!=0):
+            if(t >=self.max_time() and self.start_time!=0): #self.starttime probably not needed
                 motor_cmd ="L"
+                self.time_counter=6
                 self.temp_cmd = motor_cmd
-               
+            if(self.time_array[0]<=(time.time()-self.start_time and self.time_array[1]!=0):
+                self.start_time = 0
+                self.max_time = 6
+                self.d_array = []
+                self.time_counter=0
+                self.time_array=[0,0,0]
+                self.temp_cmd = "Random"
+                motor_cmd="R"
             
             
         return motor_cmd
@@ -61,6 +72,8 @@ class MasterNode(object):
             return "R"             # revert back cause min distance> cur_range dictonary of opp
         else:
             self.d_array.append("L")  # add todirection array
+            self.time_array.append(self.time_counter)
+            self.start_time = time.time()
             return "F"  
         
         
@@ -77,4 +90,5 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
+
 
