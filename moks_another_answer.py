@@ -13,6 +13,9 @@ class MasterNode(object):
         self.ping_sub = rospy.Subscriber("ping_sensor", Range, self.callback)
         self.min_distance = 5
         self.start_time = 0
+        
+        self.turn_delay = 3.5
+        
         self.max_time = 6
         self.d_array = []
         self.time_counter=0
@@ -23,8 +26,17 @@ class MasterNode(object):
     def callback(self, data):
         cur_range = data.range
         cur_cmd = self.check_range(cur_range)
-        self.motor_pub.publish(cur_cmd)
-        rospy.loginfo("Bot is moving - {0}".format(cur_cmd))
+        
+        if (cur_cmd == 'F'):
+            self.motor_pub.publish(cur_cmd)
+            rospy.loginfo("Bot is moving - {0}".format(cur_cmd))
+        elif(cur_cmd == 'R'or cur_cmd == 'L'):
+            self.motor_pub.publish('X')
+            rospy.loginfo("Bot is moving - {0}".format(cur_cmd))
+            self.motor_pub.publish(cur_cmd)
+            rospy.loginfo("Bot is moving - {0}".format(cur_cmd))
+            time.sleep(self.turn_delay)
+            
 
     def check_range(self, distance):
         motor_cmd = "F"
@@ -37,7 +49,7 @@ class MasterNode(object):
             self.temp_cmd = "Random"
 
         elif distance < self.min_distance:
-            self.start_time = time.time()
+            self.start_time = (self.turn_delay+time.time())
             motor_cmd = "R"
             self.d_array.append(motor_cmd)
 
@@ -49,7 +61,7 @@ class MasterNode(object):
                 motor_cmd ="L"
                 self.time_counter=6
                 self.temp_cmd = motor_cmd
-            if(self.time_array[0]<=(time.time()-self.start_time and self.time_array[1]!=0):
+            if(self.time_array[0]<=(time.time()-self.start_time) and self.time_array[1]!=0):
                 self.start_time = 0
                 self.max_time = 6
                 self.d_array = []
