@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Team A
-"""
+
+#Team A
+
+# team A friday batch
+
 
 import sys
 import rospy
